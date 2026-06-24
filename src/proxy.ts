@@ -9,7 +9,6 @@ import { rateLimit, rateLimitHeaders } from "@/lib/rateLimit";
 
 const COOKIE_SECURE = process.env.NODE_ENV === "production";
 
-/** Apply security headers to every response. */
 function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
@@ -17,7 +16,6 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
-  // Strict-Transport-Security for production
   if (COOKIE_SECURE) {
     response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   }
@@ -26,7 +24,6 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
 }
 
 export default async function proxy(request: NextRequest) {
-  // Rate limit POST requests
   if (request.method === "POST") {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
     const rl = await rateLimit(`mw:${request.nextUrl.pathname}:${ip}`, 30, 60);
@@ -80,7 +77,6 @@ export default async function proxy(request: NextRequest) {
     role = profile?.role;
   }
 
-  // Protect /dashboard (student)
   if (currentPath.startsWith("/dashboard")) {
     if (!user) {
       const loginUrl = request.nextUrl.clone();
@@ -100,7 +96,6 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
-  // Protect /teacher (teacher or admin)
   if (currentPath.startsWith("/teacher")) {
     if (!user) {
       const loginUrl = request.nextUrl.clone();
@@ -115,7 +110,6 @@ export default async function proxy(request: NextRequest) {
     }
   }
 
-  // Protect /admin (admin or teacher)
   if (currentPath.startsWith("/admin")) {
     if (!user) {
       const loginUrl = request.nextUrl.clone();

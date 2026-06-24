@@ -19,7 +19,8 @@ if (isProd) {
 
 const nextConfig: NextConfig = {
   compress: true,
-
+  output: "standalone",
+  reactStrictMode: true,
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -30,16 +31,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-
   async headers() {
     return [
-      {
-        // Immutable cache for static assets
-        source: "/(.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2|css)$)",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
-      },
       {
         // Security headers on all pages
         source: "/(.*)",
@@ -57,3 +50,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

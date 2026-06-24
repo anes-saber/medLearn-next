@@ -63,9 +63,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   /* ---- Fetch role whenever user changes ---- */
+  const fetchRole = useCallback(async () => {
+    if (!user || !supabase) return;
+    const { data } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    if (data?.role) {
+      setRole(data.role as UserRole);
+    }
+  }, [user, supabase]);
+
   useEffect(() => {
     if (!user || !supabase) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRole(null);
       return;
     }
@@ -87,6 +98,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, [user, supabase]);
+
+  /* ---- Refetch role on window focus (covers DB role changes from another tab) ---- */
+  useEffect(() => {
+    if (!user) return;
+    const onFocus = () => { void fetchRole(); };
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [user, fetchRole]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     if (!supabase) {

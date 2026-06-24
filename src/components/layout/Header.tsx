@@ -27,11 +27,12 @@ export default function Header() {
     { href: "/majors", label: t("nav.majors") },
   ];
 
-  const adminLinks = isAdminOrTeacher(role) ? [
+  const authLinks = isAdminOrTeacher(role) ? [
+    { href: "/teacher", label: t("nav.teacher") },
     { href: "/admin", label: t("nav.admin") },
   ] : [];
 
-  const allLinks = [...publicLinks, ...adminLinks];
+  const allLinks = [...publicLinks, ...authLinks];
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
@@ -55,7 +56,7 @@ export default function Header() {
         {/* CENTER: Navigation Links (Desktop only) */}
         <nav className="hidden md:flex items-center gap-8">
           {allLinks.map((link) => {
-            const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+            const isActive = !!pathname && (pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href)));
             return (
               <Link
                 key={link.href}
@@ -134,7 +135,7 @@ export default function Header() {
             {/* Links */}
             <nav className="flex flex-col gap-4">
               {allLinks.map((link) => {
-                const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
+                const isActive = !!pathname && (pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href)));
                 return (
                   <Link
                     key={link.href}

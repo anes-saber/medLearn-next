@@ -610,4 +610,62 @@ ALTER TABLE public.modules
 
 COMMIT;
 
+-- =============================================================================
+-- FILE: 20260620000000_allow_teacher_manage_profiles.sql
+-- =============================================================================
+BEGIN;
 
+DROP POLICY IF EXISTS "Admins can read all profiles" ON public.profiles;
+CREATE POLICY "Admin/teacher can read all profiles"
+  ON public.profiles FOR SELECT
+  USING (public.get_my_role() IN ('admin', 'teacher'));
+
+DROP POLICY IF EXISTS "Admins can update any profile" ON public.profiles;
+CREATE POLICY "Admin/teacher can update any profile"
+  ON public.profiles FOR UPDATE
+  USING  (public.get_my_role() IN ('admin', 'teacher'))
+  WITH CHECK (public.get_my_role() IN ('admin', 'teacher'));
+
+COMMIT;
+
+-- =============================================================================
+-- FILE: 20260622000000_fix_profiles_rls_recursion.sql
+-- =============================================================================
+BEGIN;
+
+CREATE OR REPLACE FUNCTION public.sync_role_to_jwt()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE auth.users
+  SET raw_app_meta_data =
+      COALESCE(raw_app_meta_data, '{}'::jsonb) || jsonb_build_object('role', NEW.role)
+  WHERE id = NEW.id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS sync_role_to_jwt ON public.profiles;
+CREATE TRIGGER sync_role_to_jwt
+  AFTER INSERT OR UPDATE OF role ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION public.sync_role_to_jwt();
+
+UPDATE auth.users u
+SET raw_app_meta_data =
+    COALESCE(u.raw_app_meta_data, '{}'::jsonb) || jsonb_build_object('role', p.role)
+FROM public.profiles p
+WHERE u.id = p.id
+  AND COALESCE(u.raw_app_meta_data ->> 'role', '') != p.role;
+
+CREATE OR REPLACE FUNCTION public.get_my_role()
+RETURNS TEXT
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT COALESCE(
+    auth.jwt() -> 'app_metadata' ->> 'role',
+    'student'
+  );
+$$;
+
+COMMIT;

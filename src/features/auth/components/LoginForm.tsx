@@ -50,7 +50,11 @@ export default function LoginForm() {
         await setRoleCookie(profile.role);
       }
 
-      if (profile && (profile.role === "admin" || profile.role === "teacher")) {
+      if (profile && profile.role === "admin") {
+        router.push("/admin");
+        router.refresh();
+        return;
+      } else if (profile && profile.role === "teacher") {
         router.push("/teacher");
         router.refresh();
         return;

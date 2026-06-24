@@ -7,7 +7,10 @@
     "dev:insecure": "set NODE_TLS_REJECT_UNAUTHORIZED=0 && next dev",
     "build": "next build",
     "start": "next start",
+    "start:prod": "next start -p ${PORT:-3000}",
     "lint": "eslint",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "db:link": "powershell -ExecutionPolicy Bypass -File ./scripts/supabase-link.ps1",
     "db:push": "powershell -ExecutionPolicy Bypass -File ./scripts/supabase-db-push.ps1",
     "db:bundle": "powershell -ExecutionPolicy Bypass -File ./scripts/bundle-migrations.ps1"

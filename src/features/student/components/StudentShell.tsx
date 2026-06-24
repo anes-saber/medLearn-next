@@ -47,9 +47,9 @@ export default function StudentShell({ children }: { children: React.ReactNode }
         </p>
 
         {navItems.map((item) => {
-          const active = item.exact
+          const active = !!pathname && (item.exact
             ? pathname === item.href
-            : pathname.startsWith(item.href);
+            : pathname.startsWith(item.href));
 
           return (
             <Link
@@ -177,9 +177,9 @@ export default function StudentShell({ children }: { children: React.ReactNode }
       >
         <div className="flex w-full min-w-max justify-around items-center px-2">
           {navItems.map((item) => {
-            const active = item.exact
+            const active = !!pathname && (item.exact
               ? pathname === item.href
-              : pathname.startsWith(item.href);
+              : pathname.startsWith(item.href));
             return (
               <Link
                 key={item.href}

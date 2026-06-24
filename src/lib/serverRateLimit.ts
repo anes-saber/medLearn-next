@@ -1,5 +1,3 @@
-"use server";
-
 import { rateLimit, rateLimitHeaders } from "@/lib/rateLimit";
 
 /**

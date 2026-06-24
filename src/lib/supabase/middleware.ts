@@ -31,5 +31,5 @@ export const createMiddlewareSupabaseClient = (request: NextRequest) => {
     },
   });
 
-  return supabaseResponse;
+  return { supabase, supabaseResponse };
 };

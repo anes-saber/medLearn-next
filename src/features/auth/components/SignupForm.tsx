@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
+import { setRoleCookie } from "@/features/auth/actions/authCookies";
 
 export default function SignUpForm() {
   const { signUp } = useAuth();
@@ -24,14 +25,31 @@ export default function SignUpForm() {
     setPending(true);
 
     const { error: signError } = await signUp(email.trim(), password, fullName.trim());
-    setPending(false);
 
     if (signError) {
+      setPending(false);
       setError(signError.message);
       return;
     }
 
-    router.push("/");
+    const { getBrowserSupabaseClient } = await import("@/lib/supabase/browser");
+    const supabase = getBrowserSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.role) {
+        await setRoleCookie(profile.role);
+      }
+    }
+
+    setPending(false);
+    router.push("/dashboard");
     router.refresh();
   }
 
