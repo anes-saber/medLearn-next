@@ -47,7 +47,7 @@ export default async function StudentQuizzesPage() {
                     {quiz.majors?.name} &rsaquo; {quiz.modules?.name}
                   </p>
                   <p className="text-sm" style={{ color: "hsl(215,15%,65%)" }}>
-                    Mode: {quiz.rules_json?.mode === "exam" ? "Exam (Strict)" : "Practice"}
+                    Mode: {(quiz.rules_json as { mode?: string })?.mode === "exam" ? "Exam (Strict)" : "Practice"}
                   </p>
                 </div>
                 <div className="mt-4 flex items-center text-sm font-medium" style={{ color: "#2D8659" }}>

@@ -21,5 +21,5 @@ export default async function TeacherLayout({ children }: { children: React.Reac
     redirect("/dashboard");
   }
 
-  return <TeacherShell user={user} profile={profile}>{children}</TeacherShell>;
+  return <TeacherShell>{children}</TeacherShell>;
 }
