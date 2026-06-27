@@ -24,3 +24,11 @@ export async function clearRoleCookie() {
   const cookieStore = await cookies();
   cookieStore.delete("user_role");
 }
+
+export async function serverSignOut() {
+  const { createServerSupabaseClient } = await import("@/lib/supabase/server");
+  const supabase = await createServerSupabaseClient();
+  await supabase.auth.signOut();
+  const cookieStore = await cookies();
+  cookieStore.delete("user_role");
+}

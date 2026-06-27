@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Shield, LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { serverSignOut } from "@/features/auth/actions/authCookies";
 
 export default function AlreadySignedIn({
   email,
@@ -14,14 +13,12 @@ export default function AlreadySignedIn({
   email: string;
   role: string;
 }) {
-  const { signOut } = useAuth();
-  const router = useRouter();
   const [pending, setPending] = useState(false);
 
   async function handleSignOut() {
     setPending(true);
-    await signOut();
-    router.refresh();
+    await serverSignOut();
+    window.location.href = "/";
   }
 
   return (
